@@ -1,6 +1,6 @@
-# flutter_application_1
+# Glucora (AI Powered Continuous Glucose Monitoring and Automated Insulin Delivery)
 
-A new Flutter project.
+A Flutter project.
 
 ## Getting Started
 
