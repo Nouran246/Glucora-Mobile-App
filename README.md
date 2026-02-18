@@ -14,3 +14,11 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+## Authors
+
+- [@Nouran Hassan](https://github.com/nouran246) – Artificial Intelligence Student
+- [@Malak Mohamed](https://github.com/MalakMohameed) – Artificial Intelligence Student
+- [@Yahia Elshobokshy](https://github.com/Yahia-Elshobokshy) – Artificial Intelligence Student
+- [@Roaa Khaled](https://github.com/Rowlkh) – Artificial Intelligence Student
+- [@Daniel Michel](https://github.com/DanielMichel305) – Artificial Intelligence Student
