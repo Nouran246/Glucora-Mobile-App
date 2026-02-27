@@ -150,7 +150,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
   Widget _buildPatientHeader() {
     return Container(
       color: const Color(0xFF1A7A6E),
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
       child: Row(
         children: [
           CircleAvatar(
@@ -246,34 +246,145 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
   Widget _buildOverviewTab() {
     return SingleChildScrollView(
       physics: const ClampingScrollPhysics(),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _sectionTitle('Glucose Summary — Last 24h'),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           _buildGlucoseSummaryCards(),
-          const SizedBox(height: 20),
+          const SizedBox(height: 36),
           _sectionTitle('Time In Range'),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           _buildTimeInRangeCard(),
-          const SizedBox(height: 20),
+          const SizedBox(height: 36),
           _sectionTitle('Pump Status'),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           _buildPumpStatusCard(),
-          const SizedBox(height: 20),
+          const SizedBox(height: 36),
           _sectionTitle('AID System Status'),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           _buildAIDStatusCard(),
-          const SizedBox(height: 20),
+          const SizedBox(height: 36),
           _sectionTitle('Active Alerts'),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           _buildAlertsCard(),
-          const SizedBox(height: 20),
+          const SizedBox(height: 36),
           _sectionTitle('Care Plan'),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           _buildCarePlanCard(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 36),
+          _buildDeletePatientButton(),
+          const SizedBox(height: 32),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDeletePatientButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: OutlinedButton.icon(
+        onPressed: () => _showDeleteConfirmation(),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.red,
+          side: const BorderSide(color: Colors.red, width: 1.5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+        icon: const Icon(Icons.person_remove_outlined, size: 18),
+        label: const Text(
+          'Remove Patient',
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+        ),
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.red, size: 22),
+            SizedBox(width: 8),
+            Text(
+              'Remove Patient',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+            ),
+          ],
+        ),
+        content: RichText(
+          text: TextSpan(
+            style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.5),
+            children: [
+              const TextSpan(text: 'Are you sure you want to remove '),
+              TextSpan(
+                text: widget.patientName,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+              const TextSpan(
+                text: ' from your patient list?\n\nThis will disconnect them from your care and cannot be undone.',
+              ),
+            ],
+          ),
+        ),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        actions: [
+          SizedBox(
+            width: double.infinity,
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      side: BorderSide(color: Colors.grey.shade300),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text(
+                      'Remove',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -295,7 +406,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
 
   Widget _statCard(String label, String value, String unit, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+      padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
@@ -303,10 +414,11 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
       ),
       child: Column(
         children: [
-          Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: color)),
-          Text(unit, style: TextStyle(fontSize: 10, color: color.withValues(alpha: 0.8), fontWeight: FontWeight.w600)),
+          Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: color)),
           const SizedBox(height: 4),
-          Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 10, color: Colors.grey, height: 1.3)),
+          Text(unit, style: TextStyle(fontSize: 10, color: color.withValues(alpha: 0.8), fontWeight: FontWeight.w600)),
+          const SizedBox(height: 6),
+          Text(label, textAlign: TextAlign.center, style: const TextStyle(fontSize: 10, color: Colors.grey, height: 1.4)),
         ],
       ),
     );
@@ -319,7 +431,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
     const double veryLow = 4;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: _cardDecoration(),
       child: Column(
         children: [
@@ -406,7 +518,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
 
   Widget _buildPumpStatusCard() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: _cardDecoration(),
       child: Column(
         children: [
@@ -433,7 +545,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
               _statusBadge('Active', Colors.green),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           Row(
             children: [
               Expanded(child: _pumpStat('Reservoir', '142 U', 'Remaining', const Color(0xFF5B8CF5))),
@@ -443,9 +555,9 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
               Expanded(child: _pumpStat('Basal Rate', '0.85 U/h', 'Current', const Color(0xFFFF9F40))),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           const Divider(height: 1),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           Row(
             children: [
               Expanded(child: _pumpStat('Total Daily\nDose', '38.7 U', 'Today so far', const Color(0xFF2BB6A3))),
@@ -485,7 +597,9 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: color)),
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.black87, fontWeight: FontWeight.w600, height: 1.3)),
+        const SizedBox(height: 2),
+        Text(label, style: const TextStyle(fontSize: 10, color: Colors.black87, fontWeight: FontWeight.w600, height: 1.4)),
+        const SizedBox(height: 1),
         Text(sub, style: const TextStyle(fontSize: 10, color: Colors.grey)),
       ],
     );
@@ -493,7 +607,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
 
   Widget _buildAIDStatusCard() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: _cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -521,16 +635,21 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
               _statusBadge('AUTO', const Color(0xFF5B8CF5)),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 18),
           _aidRow(Icons.show_chart, 'Predicted Glucose (30 min)', '126 mg/dL', Colors.black87),
+          const Divider(height: 1, color: Color(0xFFF0F0F0)),
           _aidRow(Icons.trending_up, 'Current Glucose Trend', '↗ Rising slowly (+2 mg/dL·min)', const Color(0xFF2BB6A3)),
+          const Divider(height: 1, color: Color(0xFFF0F0F0)),
           _aidRow(Icons.bolt, 'Next Auto-Bolus', '0.3 U in ~8 min (predicted high)', const Color(0xFFFF9F40)),
+          const Divider(height: 1, color: Color(0xFFF0F0F0)),
           _aidRow(Icons.do_not_disturb_alt, 'Suspend Guard', 'Active below 70 mg/dL', const Color(0xFFFF6B6B)),
+          const Divider(height: 1, color: Color(0xFFF0F0F0)),
           _aidRow(Icons.tune, 'Insulin Sensitivity Factor', '1 U : 45 mg/dL (current)', Colors.blueGrey),
+          const Divider(height: 1, color: Color(0xFFF0F0F0)),
           _aidRow(Icons.rice_bowl_outlined, 'Insulin-to-Carb Ratio', '1 U : 12g carbs', Colors.blueGrey),
-          const SizedBox(height: 8),
+          const SizedBox(height: 14),
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: const Color(0xFFE8F5E9),
               borderRadius: BorderRadius.circular(10),
@@ -555,12 +674,13 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
 
   Widget _aidRow(IconData icon, String label, String value, Color valueColor) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.symmetric(vertical: 11),
       child: Row(
         children: [
           Icon(icon, size: 15, color: Colors.grey),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           Expanded(child: Text(label, style: const TextStyle(fontSize: 12, color: Colors.black54))),
+          const SizedBox(width: 8),
           Text(value, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: valueColor)),
         ],
       ),
@@ -569,7 +689,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
 
   Widget _buildAlertsCard() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: _cardDecoration(),
       child: Column(
         children: [
@@ -604,8 +724,8 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
                   Text(time, style: const TextStyle(fontSize: 11, color: Colors.grey)),
                 ],
               ),
-              const SizedBox(height: 4),
-              Text(message, style: const TextStyle(fontSize: 12, color: Colors.black87)),
+              const SizedBox(height: 6),
+              Text(message, style: const TextStyle(fontSize: 12, color: Colors.black87, height: 1.4)),
             ],
           ),
         ),
@@ -615,15 +735,20 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
 
   Widget _buildCarePlanCard() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: _cardDecoration(),
       child: Column(
         children: [
           _carePlanRow('Target Range', '70 – 180 mg/dL'),
+          const Divider(height: 1, color: Color(0xFFF5F5F5)),
           _carePlanRow('Insulin Type', 'NovoLog (Fast-Acting)'),
+          const Divider(height: 1, color: Color(0xFFF5F5F5)),
           _carePlanRow('Daily Basal Program', '0.85 U/h (00:00–06:00), 1.0 U/h (06:00–12:00), 0.9 U/h (12:00–24:00)'),
+          const Divider(height: 1, color: Color(0xFFF5F5F5)),
           _carePlanRow('Max Auto-Bolus', '4.0 U per event'),
+          const Divider(height: 1, color: Color(0xFFF5F5F5)),
           _carePlanRow('Physician', 'Dr. Sarah El-Amin, Endocrinology'),
+          const Divider(height: 1, color: Color(0xFFF5F5F5)),
           _carePlanRow('Next Appointment', 'March 15, 2025'),
           const SizedBox(height: 12),
           SizedBox(
@@ -646,7 +771,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
 
   Widget _carePlanRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -664,12 +789,12 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
   Widget _buildCGMTab() {
     return SingleChildScrollView(
       physics: const ClampingScrollPhysics(),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _sectionTitle('24-Hour Glucose Trace'),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: _cardDecoration(),
@@ -703,9 +828,9 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 36),
           _sectionTitle('CGM Device Info'),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: _cardDecoration(),
@@ -721,9 +846,9 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
               ],
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 36),
           _sectionTitle('Recent Readings (Last 12)'),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Container(
             decoration: _cardDecoration(),
             child: ListView.separated(
@@ -758,7 +883,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
     }
 
     return ListTile(
-      dense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       leading: Container(
         width: 44,
         height: 44,
@@ -784,7 +909,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
 
   Widget _cgmRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -812,7 +937,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
 
     return SingleChildScrollView(
       physics: const ClampingScrollPhysics(),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -829,9 +954,9 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
               Expanded(child: _statCard('Auto\nDoses', '4', 'by AID', const Color(0xFF6FCF97))),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 36),
           _sectionTitle('Dose Log'),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Container(
             decoration: _cardDecoration(),
             child: ListView.separated(
@@ -842,9 +967,9 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
               itemBuilder: (context, i) => _insulinLogTile(insulinLog[i]),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 36),
           _sectionTitle('Active Insulin on Board (IOB)'),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(16),
             decoration: _cardDecoration(),
@@ -874,7 +999,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 const Text('IOB decays to 0 around 2:30 PM. AID will account for active insulin before issuing next auto-bolus.',
                     style: TextStyle(fontSize: 12, color: Colors.grey)),
               ],
@@ -941,7 +1066,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
 
   // ─── HELPERS ─────────────────────────────────────────────────
   Widget _sectionTitle(String title) {
-    return Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF1A2B3C)));
+    return Text(title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF1A2B3C), letterSpacing: -0.3, height: 1.0));
   }
 
   Widget _statusBadge(String label, Color color) {
@@ -955,8 +1080,8 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
   BoxDecoration _cardDecoration() {
     return BoxDecoration(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 3))],
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 16, offset: const Offset(0, 3))],
     );
   }
 }
