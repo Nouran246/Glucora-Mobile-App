@@ -165,7 +165,7 @@ class _PatientCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.08),
+            color: Colors.grey.withValues(alpha: 0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -176,8 +176,7 @@ class _PatientCard extends StatelessWidget {
           // Avatar
           CircleAvatar(
             radius: 24,
-            backgroundColor: const Color(0xFF2BB6A3).withOpacity(0.15),
-            child: const Icon(
+            backgroundColor: const Color(0xFF2BB6A3).withValues(alpha: 0.15),             child: const Icon(
               Icons.person,
               color: Color(0xFF2BB6A3),
             ),
@@ -213,7 +212,7 @@ class _PatientCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: _statusColor().withOpacity(0.12),
+              color: _statusColor().withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
