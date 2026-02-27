@@ -94,74 +94,143 @@ class _DoctorPatientsScreenState extends State<DoctorPatientsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final filtered = _filtered;
     return Scaffold(
       backgroundColor: const Color(0xFFF4F7FA),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-
-              // Greeting
-              const Text(
-                'Hi, Dr. Nouran 👋',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 4),
-              const Text(
-                'Here is your patients overview',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Summary stats row
-              _buildSummaryRow(),
-
-              const SizedBox(height: 20),
-
-              // Search + Filter
-              _buildSearchBar(),
-
-              const SizedBox(height: 20),
-
-              // List header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Your Patients',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        child: OrientationBuilder(
+          builder: (context, orientation) {
+            final isLandscape = orientation == Orientation.landscape;
+            return CustomScrollView(
+              physics: const ClampingScrollPhysics(),
+              slivers: [
+                // ── Header (scrolls away in landscape) ──
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: isLandscape ? 12 : 20,
+                    ),
+                    child: isLandscape
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Hi, Dr. Nouran 👋',
+                                        style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold)),
+                                    Text('Here is your patients overview',
+                                        style: TextStyle(
+                                            fontSize: 13, color: Colors.grey)),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              SizedBox(
+                                width: 340,
+                                child: _buildSearchBar(),
+                              ),
+                            ],
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Hi, Dr. Nouran 👋',
+                                  style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 4),
+                              const Text('Here is your patients overview',
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.grey)),
+                            ],
+                          ),
                   ),
-                  Text(
-                    '${_filtered.length} shown',
-                    style: const TextStyle(fontSize: 13, color: Colors.grey),
+                ),
+
+                // ── Summary chips ──
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                        16, isLandscape ? 0 : 0, 16, 16),
+                    child: _buildSummaryRow(),
                   ),
-                ],
-              ),
+                ),
 
-              const SizedBox(height: 12),
+                // ── Search bar (portrait only — in landscape it's in header) ──
+                if (!isLandscape)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+                      child: _buildSearchBar(),
+                    ),
+                  ),
 
-              // Patients list
-              Expanded(
-                child: _filtered.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'No patients found.',
-                          style: TextStyle(color: Colors.grey),
+                // ── List title ──
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Your Patients',
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold)),
+                        Text('${filtered.length} shown',
+                            style: const TextStyle(
+                                fontSize: 13, color: Colors.grey)),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ── Empty state ──
+                if (filtered.isEmpty)
+                  const SliverFillRemaining(
+                    child: Center(
+                      child: Text('No patients found.',
+                          style: TextStyle(color: Colors.grey)),
+                    ),
+                  ),
+
+                // ── Patient list ──
+                if (filtered.isNotEmpty)
+                  isLandscape
+                      ? SliverPadding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                          sliver: SliverGrid(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 0,
+                              childAspectRatio: 3.4,
+                            ),
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) =>
+                                  _PatientCard(patient: filtered[index]),
+                              childCount: filtered.length,
+                            ),
+                          ),
+                        )
+                      : SliverPadding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                          sliver: SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) =>
+                                  _PatientCard(patient: filtered[index]),
+                              childCount: filtered.length,
+                            ),
+                          ),
                         ),
-                      )
-                    : ListView.builder(
-                        physics: const ClampingScrollPhysics(),
-                        itemCount: _filtered.length,
-                        itemBuilder: (context, index) =>
-                            _PatientCard(patient: _filtered[index]),
-                      ),
-              ),
-            ],
-          ),
+              ],
+            );
+          },
         ),
       ),
     );
