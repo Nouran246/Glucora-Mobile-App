@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'doctor_patients_screen.dart';
+import 'doctor_requests_screen.dart';
 
 class DoctorMainScreen extends StatefulWidget {
   const DoctorMainScreen({super.key});
@@ -13,7 +14,7 @@ class _DoctorMainScreenState extends State<DoctorMainScreen> {
 
   final List<Widget> _screens = [
     const DoctorPatientsScreen(),
-    const Center(child: Text('Requests')),
+    const DoctorRequestsScreen(),
     const Center(child: Text('Alerts')),
     const Center(child: Text('Profile')),
   ];
@@ -22,10 +23,9 @@ class _DoctorMainScreenState extends State<DoctorMainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _screens[_currentIndex],
-
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        selectedItemColor: const Color(0xFF2BB6A3), // teal from design
+        selectedItemColor: const Color(0xFF2BB6A3),
         unselectedItemColor: Colors.grey,
         type: BottomNavigationBarType.fixed,
         onTap: (index) {
