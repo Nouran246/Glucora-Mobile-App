@@ -42,6 +42,14 @@ class _DoctorPatientsScreenState extends State<DoctorPatientsScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
 
+  // Active filters — null means 'no filter applied'
+  String? _filterStatus;    // 'Normal' | 'Stable' | 'High Risk'
+  String? _filterTrend;     // 'up' | 'down' | 'stable'
+  String? _filterRange;     // 'Low' | 'In Range' | 'High'
+
+  bool get _hasActiveFilters =>
+      _filterStatus != null || _filterTrend != null || _filterRange != null;
+
   final List<_Patient> _allPatients = const [
     _Patient(name: 'Walid Ahmed',    status: 'Stable',    glucoseValue: 120, lastReadingTime: '5 min ago',  trend: 'stable'),
     _Patient(name: 'Qamar Salah',    status: 'High Risk', glucoseValue: 240, lastReadingTime: '2 min ago',  trend: 'up'),
@@ -52,11 +60,23 @@ class _DoctorPatientsScreenState extends State<DoctorPatientsScreen> {
     _Patient(name: 'Rana Fathy',     status: 'High Risk', glucoseValue: 240, lastReadingTime: '7 min ago',  trend: 'up'),
   ];
 
+  String _glucoseRange(_Patient p) {
+    if (p.glucoseValue < 70) return 'Low';
+    if (p.glucoseValue <= 180) return 'In Range';
+    return 'High';
+  }
+
   List<_Patient> get _filtered {
-    if (_query.isEmpty) return _allPatients;
-    return _allPatients
-        .where((p) => p.name.toLowerCase().contains(_query.toLowerCase()))
-        .toList();
+    return _allPatients.where((p) {
+      if (_query.isNotEmpty &&
+          !p.name.toLowerCase().contains(_query.toLowerCase())) {
+        return false;
+      }
+      if (_filterStatus != null && p.status != _filterStatus) return false;
+      if (_filterTrend != null && p.trend != _filterTrend) return false;
+      if (_filterRange != null && _glucoseRange(p) != _filterRange) return false;
+      return true;
+    }).toList();
   }
 
   int get _highRiskCount =>
@@ -197,6 +217,33 @@ class _DoctorPatientsScreenState extends State<DoctorPatientsScreen> {
     );
   }
 
+  void _showFilterSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _FilterBottomSheet(
+        currentStatus: _filterStatus,
+        currentTrend: _filterTrend,
+        currentRange: _filterRange,
+        onApply: (status, trend, range) {
+          setState(() {
+            _filterStatus = status;
+            _filterTrend = trend;
+            _filterRange = range;
+          });
+        },
+        onClear: () {
+          setState(() {
+            _filterStatus = null;
+            _filterTrend = null;
+            _filterRange = null;
+          });
+        },
+      ),
+    );
+  }
+
   Widget _buildSearchBar() {
     return Row(
       children: [
@@ -228,13 +275,294 @@ class _DoctorPatientsScreenState extends State<DoctorPatientsScreen> {
           ),
         ),
         const SizedBox(width: 12),
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: const Color(0xFF2BB6A3),
-            borderRadius: BorderRadius.circular(12),
+        GestureDetector(
+          onTap: _showFilterSheet,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: _hasActiveFilters
+                      ? const Color(0xFF1A7A6E)
+                      : const Color(0xFF2BB6A3),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.tune, color: Colors.white, size: 20),
+              ),
+              if (_hasActiveFilters)
+                Positioned(
+                  top: -4,
+                  right: -4,
+                  child: Container(
+                    width: 14,
+                    height: 14,
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${[_filterStatus, _filterTrend, _filterRange].where((f) => f != null).length}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
-          child: const Icon(Icons.tune, color: Colors.white, size: 20),
+        ),
+      ],
+    );
+  }
+}
+
+// ─── FILTER BOTTOM SHEET ─────────────────────────────────────────────────────
+
+class _FilterBottomSheet extends StatefulWidget {
+  final String? currentStatus;
+  final String? currentTrend;
+  final String? currentRange;
+  final void Function(String? status, String? trend, String? range) onApply;
+  final VoidCallback onClear;
+
+  const _FilterBottomSheet({
+    required this.currentStatus,
+    required this.currentTrend,
+    required this.currentRange,
+    required this.onApply,
+    required this.onClear,
+  });
+
+  @override
+  State<_FilterBottomSheet> createState() => _FilterBottomSheetState();
+}
+
+class _FilterBottomSheetState extends State<_FilterBottomSheet> {
+  String? _status;
+  String? _trend;
+  String? _range;
+
+  @override
+  void initState() {
+    super.initState();
+    _status = widget.currentStatus;
+    _trend = widget.currentTrend;
+    _range = widget.currentRange;
+  }
+
+  bool get _hasAny => _status != null || _trend != null || _range != null;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Handle bar
+          Center(
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          // Header
+          Row(
+            children: [
+              const Text(
+                'Filter Patients',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+              ),
+              const Spacer(),
+              if (_hasAny)
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _status = null;
+                      _trend = null;
+                      _range = null;
+                    });
+                  },
+                  child: const Text(
+                    'Clear all',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // Status
+          _filterSection(
+            title: 'Status',
+            icon: Icons.circle_outlined,
+            options: const ['Normal', 'Stable', 'High Risk'],
+            colors: const [Colors.green, Colors.blueGrey, Colors.red],
+            selected: _status,
+            onSelect: (val) => setState(() => _status = _status == val ? null : val),
+          ),
+          const SizedBox(height: 20),
+
+          // Last Reading Range
+          _filterSection(
+            title: 'Last Reading',
+            icon: Icons.monitor_heart_outlined,
+            options: const ['Low', 'In Range', 'High'],
+            colors: const [Color(0xFFFF6B6B), Color(0xFF2BB6A3), Color(0xFFFF9F40)],
+            selected: _range,
+            onSelect: (val) => setState(() => _range = _range == val ? null : val),
+          ),
+          const SizedBox(height: 20),
+
+          // Glucose Trend
+          _filterSection(
+            title: 'Glucose Trend',
+            icon: Icons.trending_up_outlined,
+            options: const ['Rising', 'Falling', 'Stable'],
+            colors: const [Colors.red, Color(0xFFFF9F40), Colors.green],
+            selected: _trend == 'up'
+                ? 'Rising'
+                : _trend == 'down'
+                    ? 'Falling'
+                    : _trend == 'stable'
+                        ? 'Stable'
+                        : null,
+            onSelect: (val) {
+              setState(() {
+                final map = {'Rising': 'up', 'Falling': 'down', 'Stable': 'stable'};
+                final internal = map[val];
+                _trend = _trend == internal ? null : internal;
+              });
+            },
+          ),
+          const SizedBox(height: 28),
+
+          // Apply button
+          SizedBox(
+            width: double.infinity,
+            height: 52,
+            child: ElevatedButton(
+              onPressed: () {
+                widget.onApply(_status, _trend, _range);
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2BB6A3),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              child: Text(
+                _hasAny ? 'Apply Filters' : 'Show All Patients',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _filterSection({
+    required String title,
+    required IconData icon,
+    required List<String> options,
+    required List<Color> colors,
+    required String? selected,
+    required void Function(String) onSelect,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 15, color: Colors.grey),
+            const SizedBox(width: 6),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: Colors.black54,
+                letterSpacing: 0.3,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: List.generate(options.length, (i) {
+            final opt = options[i];
+            final color = colors[i];
+            final isSelected = selected == opt;
+            return Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(right: i < options.length - 1 ? 8 : 0),
+                child: GestureDetector(
+                  onTap: () => onSelect(opt),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    padding: const EdgeInsets.symmetric(vertical: 11),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? color.withValues(alpha: 0.12)
+                          : Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected ? color : Colors.grey.shade200,
+                        width: isSelected ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        if (isSelected)
+                          Icon(Icons.check_circle, color: color, size: 16)
+                        else
+                          Icon(Icons.circle_outlined,
+                              color: Colors.grey.shade300, size: 16),
+                        const SizedBox(height: 4),
+                        Text(
+                          opt,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                            color: isSelected ? color : Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
         ),
       ],
     );
