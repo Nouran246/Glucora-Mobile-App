@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'care_plan_editor_screen.dart';
 
 class PatientDetailsScreen extends StatefulWidget {
   final String patientName;
@@ -759,7 +760,16 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
                 backgroundColor: const Color(0xFF1A7A6E),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CarePlanEditorScreen(
+                      patientName: widget.patientName,
+                    ),
+                  ),
+                );
+              },
               icon: const Icon(Icons.edit_outlined, size: 16, color: Colors.white),
               label: const Text('Edit Care Plan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
             ),
