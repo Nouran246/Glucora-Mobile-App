@@ -1,32 +1,57 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'features/doctor/screens/doctor_main_screen.dart';
+import 'package:flutter_application_1/features/user/patient_navigation.dart';
+import 'package:flutter_application_1/features/doctor/doctor_navigation.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-    DeviceOrientation.landscapeLeft,
-    DeviceOrientation.landscapeRight,
-  ]);
-  runApp(const MyApp());
+  runApp(GlucoraApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+class GlucoraApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Glucora',
       theme: ThemeData(
-        primaryColor: const Color(0xFF2BB6A3),
-        scaffoldBackgroundColor: Colors.white,
-        useMaterial3: true,
+        primarySwatch: Colors.teal,
       ),
-      home: const DoctorMainScreen(),
+      home: RoleSelectionScreen(),
+    );
+  }
+}
+
+class RoleSelectionScreen extends StatelessWidget {
+  const RoleSelectionScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              child: Text("Patient Side"),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => PatientNavigation()),
+                );
+              },
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              child: Text("Doctor Side"),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => DoctorNavigation()),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
