@@ -107,7 +107,7 @@ class _GuardianRequestsScreenState extends State<GuardianRequestsScreen> with Si
                 const SizedBox(width: 8),
                 _summaryPill('Watching', _accepted.length, const Color(0xFF2A9D8F)),
                 const SizedBox(width: 8),
-                _summaryPill('Declined', _declined.length, Colors.grey),
+                _summaryPill('Declined', _declined.length, const Color(0xFFE63946)),
               ]),
               const SizedBox(height: 10),
             ])
@@ -121,7 +121,7 @@ class _GuardianRequestsScreenState extends State<GuardianRequestsScreen> with Si
                 const SizedBox(width: 10),
                 _summaryPill('Watching', _accepted.length, const Color(0xFF2A9D8F)),
                 const SizedBox(width: 10),
-                _summaryPill('Declined', _declined.length, Colors.grey),
+                _summaryPill('Declined', _declined.length, const Color(0xFFE63946)),
               ]),
               const SizedBox(height: 16),
             ]),
@@ -237,13 +237,13 @@ class _RequestCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF5B8CF5).withValues(alpha: 0.08),
+                  color: const Color(0xFF2A9D8F).withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
-                  const Icon(Icons.info_outline_rounded, size: 12, color: Color(0xFF5B8CF5)),
+                  const Icon(Icons.info_outline_rounded, size: 12, color: Color(0xFF2A9D8F)),
                   const SizedBox(width: 5),
-                  Flexible(child: Text(request.diabetesExplained, style: const TextStyle(fontSize: 11, color: Color(0xFF5B8CF5), fontWeight: FontWeight.w600))),
+                  Flexible(child: Text(request.diabetesExplained, style: const TextStyle(fontSize: 11, color: Color(0xFF2A9D8F), fontWeight: FontWeight.w600))),
                 ]),
               ),
             ])),
@@ -261,8 +261,10 @@ class _RequestCard extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: onDecline,
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.grey.shade500,
-                    side: BorderSide(color: Colors.grey.shade300),
+                    foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+                                        backgroundColor: const Color(0xFFE63946),
+
+                    side: BorderSide(color: const Color(0xFFE63946)),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     minimumSize: const Size(0, 0),
@@ -299,7 +301,7 @@ class _RequestCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: request.status == GuardianRequestStatus.accepted
                       ? const Color(0xFF2A9D8F).withValues(alpha: 0.1)
-                      : Colors.grey.withValues(alpha: 0.1),
+                      : const Color(0xFFE63946).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -307,7 +309,7 @@ class _RequestCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: request.status == GuardianRequestStatus.accepted ? const Color(0xFF2A9D8F) : Colors.grey.shade500,
+                    color: request.status == GuardianRequestStatus.accepted ? const Color(0xFF2A9D8F) : Color(0xFFE63946),
                   ),
                 ),
               ),
